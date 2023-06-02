@@ -25,6 +25,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-@k45=ileu&h!fiin^@(0a=0aw(6_a-02z_zjw=r1vx9o=uqkpb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
+
+# DEBUG = False
+
+# ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
+
 DEBUG = True
 
 ALLOWED_HOSTS = []
@@ -155,7 +160,7 @@ CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:3000',
 )
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -164,9 +169,11 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+USE_L10N = False
+
 USE_I18N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -181,7 +188,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 # EMAIL_HOST_USER = 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
+DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 

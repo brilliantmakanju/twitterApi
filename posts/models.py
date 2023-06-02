@@ -53,7 +53,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         return {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
-        
+
         }
 
 
@@ -71,3 +71,62 @@ class Profile(models.Model):
 
     def __str__(self):
         return str(self.user)
+
+
+# Model for Tweets
+class Post(models.Model):
+    update = models.DateTimeField(auto_now=True)
+    post = models.TextField(blank=False, null=False)
+    create = models.DateTimeField(auto_now_add=True)
+    tag = models.TextField(default="Tags", blank=True)
+    views = models.CharField(default=0, max_length=255)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    likes = models.ManyToManyField(User, blank=True, related_name="postlikes")
+    comments = models.ManyToManyField("Comment", verbose_name="tweetComments", related_name="tweetComment")
+
+    class Meta:
+        ordering = ["-pk"]
+
+    def __str__(self):
+        return str(self.user)
+
+
+# Model for Tweet Images
+class PostImage(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="post/image", blank=True)
+    # image = models
+
+    def __str__(self):
+        return str(self.post.user)
+
+# Model for COmments on Tweet
+
+
+class Comment(models.Model):
+    update = models.DateTimeField(auto_now=True)
+    create = models.DateTimeField(auto_now_add=True)
+    comment = models.TextField(default="Create Comment")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    likes = models.ManyToManyField(
+        User, blank=True, related_name="commentlikes")
+    post = models.ForeignKey(
+        Post, on_delete=models.CASCADE, related_name="tweetCommenst")
+
+    def __str__(self):
+        return str(self.post.user)
+    
+
+# MOdel for reply
+
+
+class Reply(models.Model):
+    update = models.DateTimeField(auto_now=True)
+    create = models.DateTimeField(auto_now_add=True)
+    reply = models.TextField(default="Create Reply")
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE)
+    likes = models.ManyToManyField(User, blank=True, related_name="replylikes")
+
+    def __str__(self):
+        return str(self.comment.post.user)
