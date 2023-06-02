@@ -25,20 +25,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-@k45=ileu&h!fiin^@(0a=0aw(6_a-02z_zjw=r1vx9o=uqkpb'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-<<<<<<< HEAD
 
-DEBUG = False
-
-ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
 
 # DEBUG = True
 
 # ALLOWED_HOSTS = []
-=======
+
 DEBUG = False
 
 ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
->>>>>>> 52720222a80024c3695a5b3e4a39d0ef108e470c
 
 AUTH_USER_MODEL = 'posts.User'
 
