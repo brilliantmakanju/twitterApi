@@ -12,6 +12,14 @@ class TweetSerializer(serializers.ModelSerializer):
         fields = ["update", "comments", 'post', 'create',
                   'tag', 'views', 'user', 'likes', 'pk']
 
+class TweetCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ["update", "comments", 'post', 'create',
+                  'tag', 'views', 'user', 'likes', 'pk']
+
+
+
 
 class TweetImageSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,7 +30,7 @@ class TweetImageSerializer(serializers.ModelSerializer):
 class TweetCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ["__all__"]
+        fields = ("__all__")
 
 
 class TweetReplySerializer(serializers.ModelSerializer):

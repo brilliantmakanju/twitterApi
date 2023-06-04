@@ -1,3 +1,4 @@
+import datetime
 from rest_framework import status, generics
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -5,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from .models import User, Profile, Post, PostImage, Comment, Reply
 from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer,
-                          TweetCommentSerializer, TweetImageSerializer, TweetReplySerializer, TweetSerializer)
+                          TweetCommentSerializer, TweetImageSerializer, TweetReplySerializer, TweetSerializer, TweetCreateSerializer)
 
 
 # Edit , Delete and get a specific comment
@@ -15,7 +16,8 @@ class TweetViewComment(generics.GenericAPIView):
     serializer_class = TweetCommentSerializer
 
     def get(self, request, *args, **kwargs):
-        # Get all comment for a single post
+        # Get Sinlge Comments
+        
         pass
 
     def patch(self, request, *args, **kwargs):
@@ -36,11 +38,36 @@ class TweetComment(generics.GenericAPIView):
 
     def get(self, request, *args, **kwargs):
         # Get all comment for a single post
-        pass
+        postId = kwargs["postId"]
+        try:
+            post = Post.objects.get(pk=postId)
+            comment = Comment.objects.filter(post=post)
+            comments = TweetCommentSerializer(comment, many=True)
+            return Response({"status":"success", 'comments':comments.data}, status=status.HTTP_200_OK)
+        except Post.DoesNotExist:
+            return Response({"status":"failed", "message":"Post Does not Exists"}, status=status.HTTP_404_NOT_FOUND)
+
+
 
     def post(self, request, *args, **kwargs):
         # Create new Comment
-        pass
+        data = request.data
+        postId = kwargs["postId"]
+        account = self.request.user
+        try:
+            post = Post.objects.get(pk=postId)
+            if account:
+                comments = {'comment':data['comment'], 'post':post.pk, 'user':account.pk}
+                savecomment = self.serializer_class(data=comments)
+                savecomment.is_valid(raise_exception=True)
+                savecomment.save()
+                post.comments.add(savecomment.data['id'])
+                return Response({"status":"success"}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"status":"failed", "message":"Y0u need to be logged in to comment"}, status=status.HTTP_401_UNAUTHORIZED)
+        except Post.DoesNotExist:
+            return Response({"status":"failed", "message":"Post Does not Exists"}, status=status.HTTP_404_NOT_FOUND)
+
 
 
 # Create Tweets
@@ -48,19 +75,21 @@ class TweetComment(generics.GenericAPIView):
 
 class CreateTweet(generics.GenericAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = TweetSerializer
+    serializer_class = TweetCreateSerializer
 
     def post(self, request):
         postdata = request.data
-        # print(postdata['posts'])
         user = self.request.user
+        date = datetime.datetime.now()
+        # print(user.pk)
         postdata = {'post': postdata['post'],
-                    'tag': postdata['tag'], 'user': user.pk}
-        print(postdata)
+                    'tag': postdata['tag'], 'user': user.pk, 'create':date.strftime('%Y-%m-%d %H:%M:%S')}
+        # print(postdata)
         posts = self.serializer_class(data=postdata)
-        posts.is_valid(raise_exception=True)
-        posts.save()
-        return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+        if posts.is_valid():
+            posts.save()
+            return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+        return Response({"status": "failed"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Update , Delete and view Post
@@ -72,8 +101,9 @@ class ViewUpdateDeleteTweet(generics.GenericAPIView):
         postId = kwargs["pk"]
         postData = Post.objects.get(pk=postId)
         serializer = TweetSerializer(postData)
-        print(serializer.data)
-        return Response({"tweet": serializer.data}, status=status.HTTP_200_OK)
+        comment = Comment.objects.filter(post=postData)
+        comments = TweetCommentSerializer(comment, many=True)
+        return Response({"tweet": serializer.data, "comments":comments.data}, status=status.HTTP_200_OK)
 
     def patch(self, request, *args, **kwargs):
         postId = kwargs["pk"]
@@ -105,6 +135,23 @@ class ViewUpdateDeleteTweet(generics.GenericAPIView):
                 return Response({"status": "failed", "message": "Cant Delete Tweet you did not Create"}, status=status.HTTP_404_NOT_FOUND)
         except Post.DoesNotExist:
             return Response({"status": "failed"}, status=status.HTTP_204_NO_CONTENT)
+
+
+#Get all user thats not being followed
+class AllUsers(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = Profile.objects.all()
+    serializer_class = UserSerializer
+
+    def get(self, request):
+        user = self.request.user
+        queryset = self.get_queryset()
+        users = queryset.exclude(user=user)
+        serializer = UserSerializer(users, many=True)
+        print(serializer.data)
+        return Response({'data':serializer.data}, status=status.HTTP_200_OK)
+
+
 
 # All Tweets
 
@@ -236,5 +283,4 @@ class LoginAPIView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user_data = User.objects.get(email=serializer.data['email'])
         token = RefreshToken.for_user(user_data)
-
         return Response({"data": serializer.data, "tokenAccess": str(token.access_token), 'tokenRefresh': str(token)}, status=status.HTTP_200_OK)

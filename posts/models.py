@@ -82,7 +82,7 @@ class Post(models.Model):
     views = models.CharField(default=0, max_length=255)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     likes = models.ManyToManyField(User, blank=True, related_name="postlikes")
-    comments = models.ManyToManyField("Comment", verbose_name="tweetComments", related_name="tweetComment")
+    comments = models.ManyToManyField("Comment", verbose_name="tweetComments", blank=True , related_name="tweetComment")
 
     class Meta:
         ordering = ["-pk"]
