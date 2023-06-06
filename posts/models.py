@@ -32,6 +32,8 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    fname = models.CharField(max_length=255, null=False, blank=False, default="")
+    lname = models.CharField(max_length=255, null=False, blank=False, default="")
     username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=255, unique=True, db_index=True)
     is_verified = models.BooleanField(default=False)
@@ -46,7 +48,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     def __str__(self):
-        return self.email
+        return self.username
 
     def tokens(self):
         refresh = RefreshToken.for_user(self)
@@ -62,7 +64,8 @@ class Profile(models.Model):
     bio = models.TextField(default="Welcome to my Profile", blank=True)
     followers = models.ManyToManyField(
         User, blank=True, related_name="followed")
-    image = models.CharField(max_length=255, blank=True)
+    bgimage =  models.ImageField(upload_to='profileBanner', default="/profile/bgImage.jpg")
+    image = models.ImageField(upload_to='profileImage', default="/profile/Default.jpg")
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -70,18 +73,20 @@ class Profile(models.Model):
         ordering = ["-pk"]
 
     def __str__(self):
-        return str(self.user)
+        return str(self.user.fname)
+
 
 
 # Model for Tweets
 class Post(models.Model):
     update = models.DateTimeField(auto_now=True)
+    views = models.PositiveIntegerField(default=0)
     post = models.TextField(blank=False, null=False)
     create = models.DateTimeField(auto_now_add=True)
-    tag = models.TextField(default="Tags", blank=True)
-    views = models.CharField(default=0, max_length=255)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tag = models.TextField(blank=True)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     likes = models.ManyToManyField(User, blank=True, related_name="postlikes")
+    retweet = models.ManyToManyField('Retweet', verbose_name='tweetRetweets', blank=True, related_name='tweetRetweet')
     comments = models.ManyToManyField("Comment", verbose_name="tweetComments", blank=True , related_name="tweetComment")
 
     class Meta:
@@ -90,6 +95,16 @@ class Post(models.Model):
     def __str__(self):
         return str(self.user)
 
+#Model for Retweet
+class Retweet(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tweet = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='tweetRetweetst')
+
+    class Meta:
+            ordering = ["-pk"]
+
+    def __str__(self):
+        return str(self.tweet)
 
 # Model for Tweet Images
 class PostImage(models.Model):
@@ -107,11 +122,14 @@ class Comment(models.Model):
     update = models.DateTimeField(auto_now=True)
     create = models.DateTimeField(auto_now_add=True)
     comment = models.TextField(default="Create Comment")
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Profile, on_delete=models.CASCADE)
     likes = models.ManyToManyField(
         User, blank=True, related_name="commentlikes")
     post = models.ForeignKey(
         Post, on_delete=models.CASCADE, related_name="tweetCommenst")
+
+    class Meta:
+        ordering = ['-pk']
 
     def __str__(self):
         return str(self.post.user)

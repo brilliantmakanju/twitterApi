@@ -1,36 +1,55 @@
 import datetime
+from django.db.models.query import Q
 from rest_framework import status, generics
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.parsers import MultiPartParser, FormParser
 from .models import User, Profile, Post, PostImage, Comment, Reply
-from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer,
+from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer, UpdateProfileDataSerializer, UpdateProfileSerializer, TweetCreateCommentSerializer,
                           TweetCommentSerializer, TweetImageSerializer, TweetReplySerializer, TweetSerializer, TweetCreateSerializer)
 
 
-# Edit , Delete and get a specific comment
+#Like Tweet 
 
-class TweetViewComment(generics.GenericAPIView):
-    # permission_classes = (IsAuthenticated,)
-    serializer_class = TweetCommentSerializer
-
+class LikeTweet(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = TweetSerializer
+    
     def get(self, request, *args, **kwargs):
-        # Get Sinlge Comments
+        tweetId = kwargs["tweetId"]
+        account = self.request.user
+        postData = get_object_or_404(Post, pk=tweetId)
+        if postData.likes.filter(id=account.pk).exists():
+            postData.likes.remove(self.request.user)
+            return Response({"like":"unlike"}, status=status.HTTP_200_OK)
+        else:
+            postData.likes.add(self.request.user)
+            return Response({"like":"liked"}, status=status.HTTP_201_CREATED)
+
+    
+
+# # Edit , Delete and get a specific comment
+
+# class TweetViewComment(generics.GenericAPIView):
+#     # permission_classes = (IsAuthenticated,)
+#     serializer_class = TweetCommentSerializer
+
+#     def get(self, request, *args, **kwargs):
+#         # Get Sinlge Comments
         
-        pass
+#         pass
 
-    def patch(self, request, *args, **kwargs):
-        # Update Comment
-        pass
+#     def patch(self, request, *args, **kwargs):
+#         # Update Comment
+#         pass
 
-    def delete(self, request, *args, **kwargs):
-        # Delete COmment
-        pass
-
+#     def delete(self, request, *args, **kwargs):
+#         # Delete COmment
+#         pass
 
 # Get all Tweet Comment and Create Comment
-
 
 class TweetComment(generics.GenericAPIView):
     # permission_classes = (IsAuthenticated,)
@@ -47,8 +66,6 @@ class TweetComment(generics.GenericAPIView):
         except Post.DoesNotExist:
             return Response({"status":"failed", "message":"Post Does not Exists"}, status=status.HTTP_404_NOT_FOUND)
 
-
-
     def post(self, request, *args, **kwargs):
         # Create new Comment
         data = request.data
@@ -57,8 +74,8 @@ class TweetComment(generics.GenericAPIView):
         try:
             post = Post.objects.get(pk=postId)
             if account:
-                comments = {'comment':data['comment'], 'post':post.pk, 'user':account.pk}
-                savecomment = self.serializer_class(data=comments)
+                comments = {'comment':data["comment"], 'post':post.pk, 'user':account.pk}
+                savecomment = TweetCreateCommentSerializer(data=comments)
                 savecomment.is_valid(raise_exception=True)
                 savecomment.save()
                 post.comments.add(savecomment.data['id'])
@@ -68,10 +85,7 @@ class TweetComment(generics.GenericAPIView):
         except Post.DoesNotExist:
             return Response({"status":"failed", "message":"Post Does not Exists"}, status=status.HTTP_404_NOT_FOUND)
 
-
-
 # Create Tweets
-
 
 class CreateTweet(generics.GenericAPIView):
     permission_classes = (IsAuthenticated,)
@@ -88,11 +102,11 @@ class CreateTweet(generics.GenericAPIView):
         posts = self.serializer_class(data=postdata)
         if posts.is_valid():
             posts.save()
-            return Response({"status": "success"}, status=status.HTTP_201_CREATED)
+            return Response({"statusCode": "success"}, status=status.HTTP_201_CREATED)
         return Response({"status": "failed"}, status=status.HTTP_400_BAD_REQUEST)
 
-
 # Update , Delete and view Post
+
 class ViewUpdateDeleteTweet(generics.GenericAPIView):
     # permission_classes = (IsAuthenticated,)
     serializer_class = TweetSerializer
@@ -100,6 +114,10 @@ class ViewUpdateDeleteTweet(generics.GenericAPIView):
     def get(self, request, *args, **kwargs):
         postId = kwargs["pk"]
         postData = Post.objects.get(pk=postId)
+        # print(postData.views)
+        # postData.views += 1
+        # postData.save()
+        # print(postData.views)
         serializer = TweetSerializer(postData)
         comment = Comment.objects.filter(post=postData)
         comments = TweetCommentSerializer(comment, many=True)
@@ -136,8 +154,23 @@ class ViewUpdateDeleteTweet(generics.GenericAPIView):
         except Post.DoesNotExist:
             return Response({"status": "failed"}, status=status.HTTP_204_NO_CONTENT)
 
+#Get user Tweets
+
+class UserTweets(generics.ListAPIView):
+    # permission_classes = (IsAuthenticated,)
+    queryset = Post.objects.all()
+    serializer_class = TweetSerializer
+
+    def get(self, request, *args, **kwargs):
+        user = kwargs["userId"]
+        userDoc = get_object_or_404(User, username=user)
+        queryset = self.get_queryset()
+        tweets = queryset.filter(user=userDoc.pk)
+        serializer = TweetSerializer(tweets, many=True)
+        return Response({'tweets': serializer.data}, status=status.HTTP_200_OK)
 
 #Get all user thats not being followed
+
 class AllUsers(generics.ListAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = Profile.objects.all()
@@ -148,13 +181,10 @@ class AllUsers(generics.ListAPIView):
         queryset = self.get_queryset()
         users = queryset.exclude(user=user)
         serializer = UserSerializer(users, many=True)
-        print(serializer.data)
+        # print(serializer.data)
         return Response({'data':serializer.data}, status=status.HTTP_200_OK)
 
-
-
 # All Tweets
-
 
 class Tweets(generics.ListAPIView):
     # permission_classes = (IsAuthenticated,)
@@ -164,8 +194,6 @@ class Tweets(generics.ListAPIView):
     def get(self, request):
         queryset = self.get_queryset()
         serializer = TweetSerializer(queryset, many=True)
-        # comment = Comment.objects.filter(post=17)
-        # print(serializer.data.comments.count())
         return Response({'tweets': serializer.data}, status=status.HTTP_200_OK)
 
 # Count Followers and Following
@@ -181,7 +209,9 @@ class FollowCount(generics.GenericAPIView):
         userDoc = get_object_or_404(User, username=user)
         userFollow = get_object_or_404(Profile, user=userDoc)
         userFollower = Profile.objects.filter(followers=userDoc).count()
-        if account:
+        if account != "AnonymousUser":
+            return Response({"status": "success", 'follow': userFollow.followers.count(), 'follower': userFollower}, status=status.HTTP_200_OK)
+        else:
             userFollowing = Profile.objects.filter(
                 user=userDoc, followers=account).exists()
             if userFollowing:
@@ -189,10 +219,7 @@ class FollowCount(generics.GenericAPIView):
             else:
                 return Response({"followed": "false", 'follow': userFollow.followers.count(), 'follower': userFollower}, status=status.HTTP_200_OK)
 
-        return Response({"status": "success", 'follow': userFollow.followers.count(), 'follower': userFollower}, status=status.HTTP_404_NOT_FOUND)
-
 # Follow FUnctionanilty
-
 
 class Follow(generics.GenericAPIView):
     permission_classes = (IsAuthenticated,)
@@ -205,24 +232,42 @@ class Follow(generics.GenericAPIView):
         userFollow = get_object_or_404(Profile, user=userDoc)
         if userFollow.followers.filter(id=account.pk).exists():
             userFollow.followers.remove(account)
-            return Response({"message": "UnFollow Success"                             # userFollower = get_object_or_404(Profile, followers=userDoc)
-                             # if userFollower:
-                             #     follow = userFollow.followers.count()
-                             #     print(follow)
-
-
-                             # follower = userFollower.count()
-                             # print(follower)
-                             # followerId = Profile.objects.get(user=)
-                             , "status": "success1"}, status=status.HTTP_200_OK)
+            return Response({"message": "UnFollow Success"                  
+                             , "status": "success1", "followed": "true",}, status=status.HTTP_200_OK)
         else:
             userFollow.followers.add(account)
-            return Response({"message": "Follow Success", "status": "success2"}, status=status.HTTP_200_OK)
+            return Response({"message": "Follow Success", "status": "success2", "followed": "falsess",}, status=status.HTTP_200_OK)
 
         return Response({"message": "Sorry you cant follow this account", "status": "failed"}, status=status.HTTP_404_NOT_FOUND)
 
-# USer Profile
+#Update User Profile
 
+
+class UpdateProfile(generics.GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UpdateProfileSerializer
+    parser_classes = (FormParser, MultiPartParser)
+
+    def patch(self, request, *args, **kwargs):
+        data = request.data
+        userData = {"username":data["username"], "fname":data['fname'], "lname":data['lname']}
+        userData2 = Profile.objects.get(user=self.request.user)
+        userUpdate = self.serializer_class(data=userData, partial=True, instance=userData2, context={"request":request})
+        userUpdate.is_valid(raise_exception=True)
+        userUpdate.save()
+        userData2.bio = data["bio"]
+        userData2.image = data["image"]
+        userData2.bgimage = data["bgimage"]
+        userData2.save()
+        return Response({"data":userUpdate.data}, status=status.HTTP_200_OK)
+
+
+
+    # Delete a user account
+    def delete(self, request):
+        pass
+
+# USer Profile
 
 class Profiles(generics.GenericAPIView):
 
@@ -238,20 +283,7 @@ class Profiles(generics.GenericAPIView):
             return Response({"message": "Profile for this account does not exist", "status": "failed"}, status=status.HTTP_404_NOT_FOUND)
         userInfo = self.get_serializer(userdata)
         data = userInfo.data
-        # user = [user for user in userdata.followers.all()]
-        # user = Profile.objects.get(followers=)
-        # print(user)
-
         return Response({"message": "Profile page", "status": "success", "data": data}, status=status.HTTP_200_OK)
-
-    # Update user information for a profile
-    def post(self, request):
-        pass
-
-    # Delete a user account
-    def delete(self, request):
-        pass
-
 
 class Register(generics.GenericAPIView):
 
@@ -259,7 +291,6 @@ class Register(generics.GenericAPIView):
 
     def post(self, request):
         user = request.data
-
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -282,5 +313,7 @@ class LoginAPIView(generics.GenericAPIView):
         serializer = self.serializer_class(data=user)
         serializer.is_valid(raise_exception=True)
         user_data = User.objects.get(email=serializer.data['email'])
+        profil = Profile.objects.get(user=user_data)
+        profile = UserSerializer(profil)
         token = RefreshToken.for_user(user_data)
-        return Response({"data": serializer.data, "tokenAccess": str(token.access_token), 'tokenRefresh': str(token)}, status=status.HTTP_200_OK)
+        return Response({"data": serializer.data,"profiledata":profile.data ,"tokenAccess": str(token.access_token), 'tokenRefresh': str(token)}, status=status.HTTP_200_OK)

@@ -27,13 +27,13 @@ SECRET_KEY = 'django-insecure-@k45=ileu&h!fiin^@(0a=0aw(6_a-02z_zjw=r1vx9o=uqkpb
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-# DEBUG = True
+DEBUG = True
 
-# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = []
 
-DEBUG = False
+# DEBUG = False
 
-ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
+# ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
 
 AUTH_USER_MODEL = 'posts.User'
 
@@ -160,7 +160,7 @@ CORS_ORIGIN_WHITELIST = (
     'https://twitter-frontend-clone.vercel.app',
 )
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
