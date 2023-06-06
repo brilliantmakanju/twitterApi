@@ -32,22 +32,22 @@ class LikeTweet(generics.GenericAPIView):
 
 # # Edit , Delete and get a specific comment
 
-# class TweetViewComment(generics.GenericAPIView):
-#     # permission_classes = (IsAuthenticated,)
-#     serializer_class = TweetCommentSerializer
+class TweetViewComment(generics.GenericAPIView):
+    # permission_classes = (IsAuthenticated,)
+    serializer_class = TweetCommentSerializer
 
-#     def get(self, request, *args, **kwargs):
-#         # Get Sinlge Comments
+    def get(self, request, *args, **kwargs):
+        # Get Sinlge Comments
         
-#         pass
+        pass
 
-#     def patch(self, request, *args, **kwargs):
-#         # Update Comment
-#         pass
+    def patch(self, request, *args, **kwargs):
+        # Update Comment
+        pass
 
-#     def delete(self, request, *args, **kwargs):
-#         # Delete COmment
-#         pass
+    def delete(self, request, *args, **kwargs):
+        # Delete COmment
+        pass
 
 # Get all Tweet Comment and Create Comment
 
