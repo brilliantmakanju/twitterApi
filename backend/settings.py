@@ -10,9 +10,19 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-
+import cloudinary
+# import cloudinary.uploader
+# import cloudinary.api
 from datetime import timedelta
 from pathlib import Path
+# import cloudinary_storage
+
+cloudinary.config(
+    cloud_name ='animecastle',
+    api_key = "893459558733812",
+    api_secret = "Z4moH7p_XTAic0hMNLVhibAQ9VA"
+)
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,13 +37,13 @@ SECRET_KEY = 'django-insecure-@k45=ileu&h!fiin^@(0a=0aw(6_a-02z_zjw=r1vx9o=uqkpb
 # SECURITY WARNING: don't run with debug turned on in production!
 
 
-# DEBUG = True
+DEBUG = True
 
-# ALLOWED_HOSTS = []
+ALLOWED_HOSTS = []
 
-DEBUG = False
+# DEBUG = False
 
-ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
+# ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
 
 AUTH_USER_MODEL = 'posts.User'
 
@@ -52,6 +62,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework',
     'corsheaders',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 REST_FRAMEWORK = {
@@ -160,7 +172,7 @@ CORS_ORIGIN_WHITELIST = (
     'https://twitter-frontend-clone.vercel.app',
 )
 
-CORS_ALLOW_ALL_ORIGINS = False
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
@@ -180,8 +192,8 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-MEDIA_ROOT = BASE_DIR / 'media'
-MEDIA_URL = '/media/'
+# MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_URL = '/media/'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
@@ -193,3 +205,13 @@ DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME':'animecastle',
+    "API_KEY":"893459558733812",
+    "API_SECRET":"Z4moH7p_XTAic0hMNLVhibAQ9VA"
+}
+
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

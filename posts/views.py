@@ -5,12 +5,11 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework.parsers import MultiPartParser, FormParser
 from .models import User, Profile, Post, PostImage, Comment, Reply
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 from .serializers import (UserSerializer, RegisterSerializer, LoginSerializer, UpdateProfileDataSerializer, UpdateProfileSerializer, TweetCreateCommentSerializer,
                           TweetCommentSerializer, TweetImageSerializer, TweetReplySerializer, TweetSerializer, TweetCreateSerializer)
-
-
+import cloudinary.uploader
 #Like Tweet 
 
 class LikeTweet(generics.GenericAPIView):
@@ -246,20 +245,42 @@ class Follow(generics.GenericAPIView):
 class UpdateProfile(generics.GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = UpdateProfileSerializer
-    parser_classes = (FormParser, MultiPartParser)
+    parser_classes = (JSONParser, MultiPartParser)
 
     def patch(self, request, *args, **kwargs):
         data = request.data
-        userData = {"username":data["username"], "fname":data['fname'], "lname":data['lname']}
+        userInfo = User.objects.get(pk=self.request.user.id)
         userData2 = Profile.objects.get(user=self.request.user)
-        userUpdate = self.serializer_class(data=userData, partial=True, instance=userData2, context={"request":request})
-        userUpdate.is_valid(raise_exception=True)
-        userUpdate.save()
+        if data['bio'] == '':
+            data['bio'] = userData2.bio
+        
+        print(data['bio'])
         userData2.bio = data["bio"]
-        userData2.image = data["image"]
-        userData2.bgimage = data["bgimage"]
+        # userData2.image = data["image"]
+        # userData2.bgimage = data["bgimage"]
         userData2.save()
-        return Response({"data":userUpdate.data}, status=status.HTTP_200_OK)
+
+        if data['fname'] == '':
+            data['fname'] = self.request.user.fname
+        if data['lname'] == '':
+            data['lname'] = self.request.user.lname
+        if data['username'] == '':
+            data['username'] = self.request.user.username
+        userInfo.fname = data["fname"]
+        userInfo.lname = data["lname"]
+        if User.objects.filter(pk=self.request.user.pk, username=data["username"]).exists():
+            userInfo.username = data["username"]
+            userInfo.save()
+            return Response({"code":"success"}, status=status.HTTP_200_OK)
+        elif User.objects.filter(username=data["username"]).exists():
+            return Response({"code":"failed", 'message':"Username is already taken"}, status=status.HTTP_200_OK)
+        else:
+            userInfo.username = data["username"]
+            userInfo.save()
+
+
+
+        return Response({'code':'success'}, status=status.HTTP_200_OK)
 
 
 

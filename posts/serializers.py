@@ -79,7 +79,7 @@ class UpdateProfileDataSerializer(serializers.Serializer):
 
     class Meta:
         model = Profile
-        fields = ("bio", 'image')
+        fields = ("bio", 'image', 'bgimage')
 
 class UpdateProfileSerializer(serializers.Serializer):
     fname = serializers.CharField(required=True)
@@ -90,12 +90,13 @@ class UpdateProfileSerializer(serializers.Serializer):
     def validate(self, attrs):
         user = self.context['request'].user
         email = attrs.get('email', '')
+        fname = attrs.get('fname', '')
+        lname = attrs.get('lname', 's')
         username = attrs.get('username', '')
         # if User.objects.exclude(pk=user.pk).filter(email=email).exists():
         #     raise serializers.ValidationError("This email is already taken")
         if User.objects.exclude(pk=user.pk).filter(username=username).exists():
             raise serializers.ValidationError("This Username is already taken")
-        
         return attrs
     
     def update(self, instance, validated_data):

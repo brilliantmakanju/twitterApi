@@ -4,6 +4,7 @@ from django.db.models.signals import post_save
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin)
+from cloudinary.models import CloudinaryField
 
 
 class UserManager(BaseUserManager):
@@ -64,8 +65,8 @@ class Profile(models.Model):
     bio = models.TextField(default="Welcome to my Profile", blank=True)
     followers = models.ManyToManyField(
         User, blank=True, related_name="followed")
-    bgimage =  models.ImageField(upload_to='profileBanner', default="/profile/bgImage.jpg")
-    image = models.ImageField(upload_to='profileImage', default="/profile/Default.jpg")
+    bgimage =  CloudinaryField("profileBanner")
+    image = CloudinaryField('profileImage')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
