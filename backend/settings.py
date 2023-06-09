@@ -172,8 +172,7 @@ CORS_ORIGIN_WHITELIST = (
     'https://twitter-frontend-clone.vercel.app',
 )
 
-CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_ALL_ORIGINS = False
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
