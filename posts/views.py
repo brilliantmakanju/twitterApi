@@ -1,4 +1,8 @@
+import io
+import os
+import base64
 import datetime
+import PIL.Image as Image
 from django.db.models.query import Q
 from rest_framework import status, generics
 from rest_framework.response import Response
@@ -247,18 +251,39 @@ class UpdateProfile(generics.GenericAPIView):
     serializer_class = UpdateProfileSerializer
     parser_classes = (JSONParser, MultiPartParser)
 
+
+
     def patch(self, request, *args, **kwargs):
         data = request.data
         userInfo = User.objects.get(pk=self.request.user.id)
         userData2 = Profile.objects.get(user=self.request.user)
+        user = self.request.user.username
+        userExt = f"{self.request.user}.png"
+        c = data['image'].split(",")[1]
+        b = base64.b64decode(c)
+        img = Image.open(io.BytesIO(b))
+        img.save(userExt, "PNG")
+        response = cloudinary.uploader.upload(userExt, public_id= user, folder=user)
+        userExt2 = f"{self.request.user}banner.png"
+        c2 = data['bgimage'].split(",")[1]
+        b2 = base64.b64decode(c2)
+        img2 = Image.open(io.BytesIO(b2))
+        img2.save(userExt2, "PNG")
+        response2 = cloudinary.uploader.upload(userExt2, public_id= user, folder=f"{user} banner")
+        response = cloudinary.uploader.upload(userExt, public_id = user, folder=user)
+        prefix = "https://res.cloudinary.com/animecastle/image/upload/"
+        userData2.image = response['secure_url'].replace(prefix, "")
+        userData2.bgimage = response2['secure_url'].replace(prefix, "")
+        userData2.save()
+        os.remove(userExt)
+        os.remove(userExt2)
         if data['bio'] == '':
             data['bio'] = userData2.bio
+            userData2.save()
         
-        print(data['bio'])
-        userData2.bio = data["bio"]
-        # userData2.image = data["image"]
+        # print(data['bio'])
+        # userData2.bio = data["bio"]
         # userData2.bgimage = data["bgimage"]
-        userData2.save()
 
         if data['fname'] == '':
             data['fname'] = self.request.user.fname

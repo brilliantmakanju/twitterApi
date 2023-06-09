@@ -65,8 +65,8 @@ class Profile(models.Model):
     bio = models.TextField(default="Welcome to my Profile", blank=True)
     followers = models.ManyToManyField(
         User, blank=True, related_name="followed")
-    bgimage =  CloudinaryField("profileBanner")
-    image = CloudinaryField('profileImage')
+    bgimage =  CloudinaryField()
+    image = CloudinaryField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
