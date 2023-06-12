@@ -43,7 +43,7 @@ SECRET_KEY = 'django-insecure-@k45=ileu&h!fiin^@(0a=0aw(6_a-02z_zjw=r1vx9o=uqkpb
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
 
 AUTH_USER_MODEL = 'posts.User'
 
@@ -191,13 +191,6 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = os.path.join(BASE_DIR, 'static/')
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, 'static'),
-)
-
-STATICFILES_STORAGE = django.contrib.staticfiles.storage.StaticFilesStorage
 # MEDIA_ROOT = BASE_DIR / 'media'
 # MEDIA_URL = '/media/'
 
