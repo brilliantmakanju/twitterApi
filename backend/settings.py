@@ -169,7 +169,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 CORS_ORIGIN_WHITELIST = [
-    'https://twitter-frontend-clone.vercel.app',
+    'https://twitter-frontend-clone.vercel.app/',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -186,6 +186,12 @@ USE_L10N = False
 USE_I18N = True
 
 USE_TZ = False
+
+STATIC_URL = '/static/'
+
+#Location of static files
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'), ]
+STATIC_ROOT  = os.path.join(BASE_DIR, 'staticfiles')
 
 
 # Static files (CSS, JavaScript, Images)
@@ -212,5 +218,5 @@ CLOUDINARY_STORAGE = {
     "API_SECRET":"Z4moH7p_XTAic0hMNLVhibAQ9VA"
 }
 
-
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
