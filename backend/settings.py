@@ -41,7 +41,7 @@ SECRET_KEY = 'django-insecure-@k45=ileu&h!fiin^@(0a=0aw(6_a-02z_zjw=r1vx9o=uqkpb
 
 # ALLOWED_HOSTS = []
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
 
@@ -186,15 +186,14 @@ USE_I18N = True
 
 USE_TZ = False
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.2/howto/static-files/
 STATIC_URL = '/static/'
+
 
 # Location of static files
 STATICFILES_DIRS = [BASE_DIR / 'static' ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 # MEDIA_ROOT = BASE_DIR / 'media'
 # MEDIA_URL = '/media/'
 
@@ -215,6 +214,5 @@ CLOUDINARY_STORAGE = {
     "API_KEY": "893459558733812",
     "API_SECRET": "Z4moH7p_XTAic0hMNLVhibAQ9VA"
 }
-
 
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
