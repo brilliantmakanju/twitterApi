@@ -195,7 +195,7 @@ class Tweets(generics.ListAPIView):
     serializer_class = TweetSerializer
 
     def get(self, request):
-        queryset = self.get_queryset()
+        queryset = Post.objects.all()
         serializer = TweetSerializer(queryset, many=True)
         return Response({'tweets': serializer.data}, status=status.HTTP_200_OK)
 
