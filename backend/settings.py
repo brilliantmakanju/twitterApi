@@ -169,7 +169,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 CORS_ORIGIN_WHITELIST = [
-    'https://twitter-frontend-clone.vercel.app/',
+    'https://twitter-frontend-clone.vercel.app',
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
