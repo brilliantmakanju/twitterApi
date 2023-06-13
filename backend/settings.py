@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+import os
 import cloudinary
 # import cloudinary.uploader
 # import cloudinary.api
@@ -18,9 +18,9 @@ from pathlib import Path
 # import cloudinary_storage
 
 cloudinary.config(
-    cloud_name ='animecastle',
-    api_key = "893459558733812",
-    api_secret = "Z4moH7p_XTAic0hMNLVhibAQ9VA"
+    cloud_name='animecastle',
+    api_key="893459558733812",
+    api_secret="Z4moH7p_XTAic0hMNLVhibAQ9VA"
 )
 
 
@@ -67,7 +67,7 @@ INSTALLED_APPS = [
 ]
 
 REST_FRAMEWORK = {
-    'NON_FIELD_ERRORS_KEY':'error',
+    'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ],
@@ -167,7 +167,6 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-
 CORS_ORIGIN_WHITELIST = [
     'https://twitter-frontend-clone.vercel.app',
 ]
@@ -190,15 +189,19 @@ USE_TZ = False
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
+STATIC_URL = '/static/'
 
-STATIC_URL = 'static/'
+# Location of static files
+STATICFILES_DIRS = [BASE_DIR / 'static' ]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 # MEDIA_ROOT = BASE_DIR / 'media'
 # MEDIA_URL = '/media/'
 
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-# EMAIL_HOST_USER = 
+# EMAIL_HOST_USER =
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 # Default primary key field type
@@ -208,9 +211,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME':'animecastle',
-    "API_KEY":"893459558733812",
-    "API_SECRET":"Z4moH7p_XTAic0hMNLVhibAQ9VA"
+    'CLOUD_NAME': 'animecastle',
+    "API_KEY": "893459558733812",
+    "API_SECRET": "Z4moH7p_XTAic0hMNLVhibAQ9VA"
 }
 
 
