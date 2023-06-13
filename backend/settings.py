@@ -187,13 +187,9 @@ USE_I18N = True
 USE_TZ = False
 
 STATIC_URL = '/static/'
-
-
-# Location of static files
-STATICFILES_DIRS = [BASE_DIR / 'static' ]
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static'),] # new
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles') # new
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
-
 # MEDIA_ROOT = BASE_DIR / 'media'
 # MEDIA_URL = '/media/'
 
