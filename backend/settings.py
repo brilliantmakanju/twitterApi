@@ -42,8 +42,8 @@ SECRET_KEY = 'django-insecure-@k45=ileu&h!fiin^@(0a=0aw(6_a-02z_zjw=r1vx9o=uqkpb
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["127.0.0.1"]
-# ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
+# ALLOWED_HOSTS = ["127.0.0.1"]
+ALLOWED_HOSTS = ["twitterapi-production-91d6.up.railway.app"]
 
 AUTH_USER_MODEL = 'posts.User'
 
